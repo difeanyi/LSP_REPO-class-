@@ -1,4 +1,4 @@
-# Course Orientation
+# Course Orientation - David Ifeanyi
 
 **Course:** LSP – Fall 2026
 
