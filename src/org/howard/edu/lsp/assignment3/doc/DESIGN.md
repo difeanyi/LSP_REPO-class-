@@ -142,7 +142,7 @@ input file, a header-only file, and an empty file. All produced identical output
 interaction covered breaking down the assignment requirements, identifying the behavior.
 
 
-Transcript: **[PASTE AI TRANSCRIPT LINK HERE — REQUIRED BEFORE SUBMITTING]**
+Transcript: https://share.gemini.google/G5P1MtIOTeND
 
 **Internet resources used:** None beyond the standard Java API documentation.
 
