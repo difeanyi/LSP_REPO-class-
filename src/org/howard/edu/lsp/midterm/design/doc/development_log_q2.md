@@ -4,3 +4,88 @@
 **How it helped:** It produced a first working implementation. I reviewed it against the requirements before submitting.
 
 **Complete conversation transcript:**
+Got it, now for question 2, same structure and prompt as question 1.
+
+Here is the breakdown and base implementation for Question 2. Because this question is focused on evaluating and redesigning object-oriented architecture, you don't actually need to write any new .java code. Instead, you need to create four specific Markdown (.md) files.
+
+Directory Setup
+Create the following directory structure in your repository:org/howard/edu/lsp/midterm/design/doc/
+
+Place the four files below into this doc folder.
+
+1. evaluation.md (Part 1 - Design Evaluation)
+Base Implementation / Directions:
+Copy the text below into your evaluation.md file. It identifies the architectural flaws in the provided Java class using Arthur Riel's Object-Oriented Design Heuristics.
+
+Markdown
+# Object-Oriented Design Evaluation
+
+The provided `CourseRegistration` class suffers from poor structure and maintainability because it acts as a "God Class" (a violation of the Single Responsibility Principle). It attempts to manage UI (printing to console), business logic (calculating tuition and discounts), data access (writing to a file), and communications (sending emails) all in a single method.
+
+**Violations of Arthur Riel's Heuristics:**
+1. **"Do not create god classes/system intelligence in one class."** `CourseRegistration` controls the entire workflow. If the tuition discount rules change, or if the file format changes, this single class must be modified, making it highly susceptible to bugs.
+2. **"Model the real world / Distribute system intelligence."** In a real-world system, a registration form doesn't send its own emails or write itself into a database. Those responsibilities belong to specialized services (like a Mailer or a Database Manager). 
+3. **"Keep related data and behavior in one place."** The class mixes unrelated domains. File I/O exception handling (`FileWriter`) has no logical relationship to calculating a 10% credit hour discount. This lack of cohesion makes the class difficult to test, extend, and reuse.
+2. design.md (Part 2 - CRC Cards)
+Base Implementation / Directions:
+Copy the text below into your design.md file. This breaks the "God Class" down into smaller, highly cohesive objects that handle one specific job.
+
+Markdown
+# Proposed CRC Card Design
+
+**Class:** Registration
+**Responsibilities:** Store data regarding the student (ID, name, email), the course (code, credit hours), and final tuition cost.
+**Collaborators:** None
+
+**Class:** TuitionCalculator
+**Responsibilities:** Calculate the base tuition and apply heavy-course-load discounts based on credit hours.
+**Collaborators:** Registration
+
+**Class:** RegistrationRepository
+**Responsibilities:** Save the finalized registration record to persistent storage.
+**Collaborators:** Registration
+
+**Class:** NotificationService
+**Responsibilities:** Send registration confirmation to the student.
+**Collaborators:** Registration
+
+**Class:** RegistrationProcessor
+**Responsibilities:** Act as a controller to coordinate the registration workflow (calculate tuition, save to repository, and trigger notification).
+**Collaborators:** Registration, TuitionCalculator, RegistrationRepository, NotificationService
+3. design_rationale.md (Part 3 - Evolving Requirements)
+Base Implementation / Directions:
+Copy the text below into your design_rationale.md file. This explains how your new CRC design handles the new requirements (File vs. Database, Email vs. Text) without breaking existing code.
+
+Markdown
+# Design Rationale for Evolving Requirements
+
+To accommodate multiple storage options (local file or database) and notification methods (email or text), our CRC design relies on abstraction and polymorphism. 
+
+**Changes to the CRC Design:**
+We would treat `RegistrationRepository` and `NotificationService` as abstract interfaces rather than concrete classes. 
+* `RegistrationRepository` will have two concrete implementations: `FileRepository` and `DatabaseRepository`.
+* `NotificationService` will have two concrete implementations: `EmailService` and `TextService`.
+
+**Responsibility Justification:**
+The `RegistrationProcessor` retains the responsibility of coordinating the workflow, but it will no longer care *how* a record is saved or *how* a message is sent. We pass the specific implementations (e.g., `DatabaseRepository` and `TextService`) into the `RegistrationProcessor` at runtime depending on the deployment environment. This ensures our system follows the Open/Closed Principle: we can add new storage or notification types in the future by simply creating new classes, without ever modifying the core `RegistrationProcessor` logic.
+4. development_log_q2.md (Part 4 - Development Log)
+Directions:
+For this file, you must state what resources you used. Because you are using this AI conversation, you need to copy and paste the prompt you gave me and this exact response into the file to satisfy the exam's disclosure rules.
+
+Markdown
+# Development Log
+
+**Resources Used:** AI Assistant (Gemini)
+
+**How it helped:** The AI helped break down Arthur Riel's heuristics as they applied to the provided code and structured the CRC cards to resolve Single Responsibility Principle violations.
+
+**Transcript:**
+[Copy and paste our conversation regarding Question 2 here]
+Why and How This Works
+The Problem: The original code was tightly coupled. If you wanted to change the email message, you risked accidentally breaking the math for the tuition calculation because they lived in the exact same block of code.
+
+The Solution: By separating the code into a Calculator, a Repository (storage), and a Notifier, you isolate the risks.
+
+The Extensibility: When the professor asked to add Database and Text Message support, our separated design made it easy. Instead of writing massive if/else blocks inside the original class (if (useDatabase) { ... } else { ... }), we just swap out which "collaborator" object the main processor is talking to.
+
+Ready to tackle the Java refactoring in Question 3?

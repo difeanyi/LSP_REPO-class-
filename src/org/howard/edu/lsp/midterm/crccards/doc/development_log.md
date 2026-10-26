@@ -10,5 +10,246 @@
 **Complete conversation transcript:**
 
 https://share.gemini.google/T4TbDvdUxQN7
+Directory SetupCreate the following file structure inside your GitHub repository:org/howard/edu/lsp/midterm/crccards/
+Place Book.java, Library.java, and the provided Driver.java inside this crccards folder.1. Book.java ImplementationJavapackage org.howard.edu.lsp.midterm.crccards;
 
+/**
+ * Represents a book in the library system.
+ * 
+ * @author Your Name Here
+ */
+public class Book {
+    private String isbn;
+    private String title;
+    private String author;
+    private boolean available;
+
+    /**
+     * Constructs a new Book with the given ISBN, title, and author.
+     * New books are available by default.
+     *
+     * @param isbn   the unique ISBN of the book
+     * @param title  the title of the book
+     * @param author the author of the book
+     */
+    public Book(String isbn, String title, String author) {
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.available = true;
+    }
+
+    /**
+     * Gets the ISBN of the book.
+     *
+     * @return the book's ISBN
+     */
+    public String getIsbn() {
+        return isbn;
+    }
+
+    /**
+     * Gets the title of the book.
+     *
+     * @return the book's title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Gets the author of the book.
+     *
+     * @return the book's author
+     */
+    public String getAuthor() {
+        return author;
+    }
+
+    /**
+     * Checks if the book is currently available to be borrowed.
+     *
+     * @return true if available, false if borrowed
+     */
+    public boolean isAvailable() {
+        return available;
+    }
+
+    /**
+     * Marks the book as borrowed (unavailable).
+     *
+     * @throws IllegalStateException if the book is already borrowed
+     */
+    public void borrowBook() {
+        if (!available) {
+            throw new IllegalStateException("Book is already borrowed.");
+        }
+        this.available = false;
+    }
+
+    /**
+     * Marks the book as returned (available).
+     *
+     * @throws IllegalStateException if the book is already available
+     */
+    public void returnBook() {
+        if (available) {
+            throw new IllegalStateException("Book is already available.");
+        }
+        this.available = true;
+    }
+
+    /**
+     * Returns a formatted string representation of the book.
+     *
+     * @return a string containing the ISBN, title, author, and availability status
+     */
+    @Override
+    public String toString() {
+        String status = available ? "[AVAILABLE]" : "[BORROWED]";
+        return isbn + " " + title + " by " + author + " " + status;
+    }
+}
+2. Library.java ImplementationJavapackage org.howard.edu.lsp.midterm.crccards;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Represents a library that manages a collection of books.
+ * 
+ * @author Your Name Here
+ */
+public class Library {
+    private Map<String, Book> inventory;
+
+    /**
+     * Constructs a new empty Library.
+     */
+    public Library() {
+        this.inventory = new HashMap<>();
+    }
+
+    /**
+     * Adds a new book to the library.
+     *
+     * @param book the Book object to add
+     * @throws IllegalArgumentException if a book with the same ISBN already exists
+     */
+    public void addBook(Book book) {
+        if (inventory.containsKey(book.getIsbn())) {
+            throw new IllegalArgumentException("A book with this ISBN already exists in the library.");
+        }
+        inventory.put(book.getIsbn(), book);
+    }
+
+    /**
+     * Finds and returns a book by its ISBN.
+     *
+     * @param isbn the ISBN to search for
+     * @return the Book object if found, or null if absent
+     */
+    public Book findBook(String isbn) {
+        return inventory.get(isbn);
+    }
+
+    /**
+     * Borrows a book from the library using its ISBN.
+     *
+     * @param isbn the ISBN of the book to borrow
+     * @throws IllegalArgumentException if the ISBN does not exist in the library
+     * @throws IllegalStateException if the book is already borrowed or if the library's limit (3 books) is reached
+     */
+    public void borrowBook(String isbn) {
+        if (!inventory.containsKey(isbn)) {
+            throw new IllegalArgumentException("Book with ISBN " + isbn + " not found in the library.");
+        }
+        
+        Book book = inventory.get(isbn);
+        
+        if (!book.isAvailable()) {
+            book.borrowBook(); // Delegates to Book to trigger the standard IllegalStateException
+        } else if (getBorrowedBookCount() >= 3) {
+            throw new IllegalStateException("Borrowing limit of 3 books has been reached.");
+        } else {
+            book.borrowBook();
+        }
+    }
+
+    /**
+     * Returns a book to the library using its ISBN.
+     *
+     * @param isbn the ISBN of the book to return
+     * @throws IllegalArgumentException if the ISBN does not exist in the library
+     * @throws IllegalStateException if the book is already marked as available
+     */
+    public void returnBook(String isbn) {
+        if (!inventory.containsKey(isbn)) {
+            throw new IllegalArgumentException("Book with ISBN " + isbn + " not found in the library.");
+        }
+        inventory.get(isbn).returnBook();
+    }
+
+    /**
+     * Retrieves a list of all currently available books.
+     *
+     * @return a List of available books
+     */
+    public List<Book> getAvailableBooks() {
+        List<Book> availableBooks = new ArrayList<>();
+        for (Book book : inventory.values()) {
+            if (book.isAvailable()) {
+                availableBooks.add(book);
+            }
+        }
+        return availableBooks;
+    }
+
+    /**
+     * Retrieves a list of all books by a specific author (case-sensitive).
+     *
+     * @param author the exact author name to match
+     * @return a List of matching books
+     */
+    public List<Book> getBooksByAuthor(String author) {
+        List<Book> booksByAuthor = new ArrayList<>();
+        for (Book book : inventory.values()) {
+            if (book.getAuthor().equals(author)) {
+                booksByAuthor.add(book);
+            }
+        }
+        return booksByAuthor;
+    }
+
+    /**
+     * Retrieves all books sorted by their ISBN in ascending lexicographical order.
+     *
+     * @return a sorted List of books
+     */
+    public List<Book> getBooksSortedByIsbn() {
+        List<Book> sortedBooks = new ArrayList<>(inventory.values());
+        sortedBooks.sort(Comparator.comparing(Book::getIsbn));
+        return sortedBooks;
+    }
+
+    /**
+     * Gets the current number of books that are borrowed from the library.
+     *
+     * @return the count of borrowed books
+     */
+    public int getBorrowedBookCount() {
+        int count = 0;
+        for (Book book : inventory.values()) {
+            if (!book.isAvailable()) {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+How and Why It Works (For your crccards.md and understanding)Collection Choice (HashMap): The Library uses a Map<String, Book> internally. This is the optimal data structure because ISBNs act as unique identifiers (keys). Using a Map allows findBook(), borrowBook(), and returnBook() to locate books in $O(1)$ constant time, rather than iterating through a list.Delegation of State (Collaboration): Based on the CRC cards, Library collaborates with Book. The Library does not directly modify a book's available field. When Library.borrowBook() is called, the library finds the correct object and triggers book.borrowBook(). The Book class is strictly responsible for managing and validating its own state.Enforcing the 3-Book Limit: The Library is the only entity with visibility over the entire collection and the total count of borrowed books. The individual Book object does not know about other books, so the Library must enforce the three-book borrowing limit before delegating the state change to the specific Book.
 
